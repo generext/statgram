@@ -5,13 +5,21 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "statgram"
 version = "0.1.0"
-description = "AI-сервис для чат ботов: управление, аналитика и прогнозы."
+description = "AI-сервис для чат-ботов: управление, аналитика и прогнозы."
+
 authors = [
-  { name="Kalinin Egor", email="[me@generext.com]" }
+  { name = "Kalinin Egor", email = "me@generext.com" }
 ]
-license = "MIT"
-dependencies = []
+
+license = { file = "LICENSE" }
+
+dependencies = [
+  "aiogram==2.25.1",
+  "fastapi==0.95.1",
+  "uvicorn==0.22.0",
+  "pydantic==1.10.4"
+]
 
 [project.urls]
-"Source Code" = "https://github.com/generext/statgram"
-"Issues" = "https://github.com/generext/statgram/issues"
+Source = "https://github.com/generext/statgram"
+Issues = "https://github.com/generext/statgram/issues"

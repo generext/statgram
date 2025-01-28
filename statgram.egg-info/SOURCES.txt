@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+statgram/__init__.py
+statgram/main.py
+statgram/schemas.py
+statgram.egg-info/PKG-INFO
+statgram.egg-info/SOURCES.txt
+statgram.egg-info/dependency_links.txt
+statgram.egg-info/requires.txt
+statgram.egg-info/top_level.txt
+tests/test_main.py
