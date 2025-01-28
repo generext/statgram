@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "statgram"
+version = "0.1.0"
+description = "AI-сервис для чат ботов: управление, аналитика и прогнозы."
+authors = [
+  { name="Kalinin Egor", email="[me@generext.com]" }
+]
+license = "MIT"
+dependencies = []
+
+[project.urls]
+"Source Code" = "https://github.com/generext/statgram"
+"Issues" = "https://github.com/generext/statgram/issues"
