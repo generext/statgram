@@ -4,6 +4,7 @@ import threading
 import time
 import asyncio
 from .schemas import MessageSchema
+import urllib.parse
 
 
 class Statgram:
@@ -15,7 +16,8 @@ class Statgram:
         """
         self.token = token
         self.bot = bot
-        self.url = f"https://statgram.org/chatbot/messages?token={token}"
+        self.url = f"https://gateway.statgram.org/chatbot/messages?token={token}"
+        self.is_postgres_added = False
 
         # Запускаем поток для периодического GET-запроса
         self._start_periodic_get_requests()
@@ -60,3 +62,34 @@ class Statgram:
             await self.bot.send_message(**data.model_dump())
         except Exception as e:
             print(f"Ошибка отправки сообщения: {e}")
+
+
+    def connect_postgresql(self, host: str, port: int, user: str, password: str, database: str):
+        """
+        Создаёт URL для PostgreSQL и отправляет POST-запрос к `https://gateway.statgram.org/chatbot/connect_postgresql`.
+        """
+        if not self.is_postgres_added:
+            self.is_postgres_added = True
+            # Кодируем user и password, чтобы избежать проблем с спецсимволами
+            encoded_user = urllib.parse.quote(user)
+            encoded_password = urllib.parse.quote(password)
+
+            # Формируем PostgreSQL URL
+            postgres_url = f"postgresql://{encoded_user}:{encoded_password}@{host}:{port}/{database}"
+
+            url = "https://gateway.statgram.org/chatbot/connect_postgresql"
+            payload = {"url": postgres_url}  # Передаём URL базы данных
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.token}"  # Передаём API-токен в заголовке
+            }
+            
+            try:
+                response = requests.post(url, json=payload, headers=headers, timeout=10)  # Отправляем POST-запрос
+                response.raise_for_status()  # Проверяем HTTP-ошибки (4xx, 5xx)
+                data = response.json()  # Конвертируем ответ в JSON
+                print(f"✅ Ответ от сервера: {data}")
+                return data
+            except requests.exceptions.RequestException as e:
+                print(f"❌ Ошибка при запросе к API: {e}")
+                return None
