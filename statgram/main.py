@@ -22,6 +22,25 @@ class Statgram:
 
         # Запускаем поток для периодического GET-запроса
         self._start_periodic_get_requests()
+        self.init_ping()
+
+
+    def init_ping(self):
+        """
+        Выполняет проверочный запрос к endpoint /v1/auth/check-init.
+        """
+        url = "https://gateway.statgram.org/v1/auth/check-init"
+        headers = {
+            "Authorization": f"Bearer {self.token}"
+        }
+        try:
+            response = requests.get(url, headers=headers, timeout=5)
+            response.raise_for_status()
+            print("✅ Пинг успешен, соединение установлено.")
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Ошибка пинга: {e}")
+            return None
 
     def _start_periodic_get_requests(self):
         """
@@ -56,6 +75,9 @@ class Statgram:
         # Запускаем поток
         thread = threading.Thread(target=periodic_get, daemon=True)
         thread.start()
+
+    def init_ping(self):
+        pass
 
     async def send_message(self, data: MessageSchema):
         """
