@@ -16,7 +16,8 @@ class Statgram:
         """
         self.token = token
         self.bot = bot
-        self.url = f"https://gateway.statgram.org/chatbot/messages?token={token}"
+        self.view_url = f"https://gateway.statgram.org/v1/library/view-message/{{chat_id}}?api_token={token}"
+        self.delete_url = f"https://gateway.statgram.org/v1/library/delete-message/{{chat_id}}?api_token={token}"
         self.is_postgres_added = False
 
         # Запускаем поток для периодического GET-запроса
@@ -24,27 +25,30 @@ class Statgram:
 
     def _start_periodic_get_requests(self):
         """
-        Запускает поток, который выполняет GET-запросы раз в секунду и обрабатывает список MessageSchema.
+        Запускает поток, который выполняет GET-запросы раз в секунду и обрабатывает сообщение.
         """
         def periodic_get():
             while True:
+                chat_id = "example_chat_id"  # Здесь должен быть актуальный chat_id для запроса
                 try:
-                    response = requests.get(self.url)
+                    # Получаем сообщение
+                    response = requests.get(self.view_url.format(chat_id=chat_id))
                     if response.status_code == 200:
-                        data = response.json()  # Получаем данные в формате JSON
-                        if isinstance(data, list):  # Убеждаемся, что это список
-                            for item in data:
-                                try:
-                                    # Преобразуем каждый элемент в объект MessageSchema
-                                    message_data = MessageSchema(**item)
-                                    # Отправляем сообщение
-                                    asyncio.run(self.send_message(message_data))
-                                except Exception as e:
-                                    print(f"Ошибка обработки элемента MessageSchema: {e}")
+                        data = response.json()
+                        if data:  # Если сообщение не пустое
+                            try:
+                                # Преобразуем данные в объект MessageSchema и отправляем сообщение
+                                message_data = MessageSchema(**data)
+                                asyncio.run(self.send_message(message_data))
+
+                                # Удаляем сообщение после успешной отправки
+                                self.delete_message(chat_id)
+                            except Exception as e:
+                                print(f"Ошибка обработки сообщения: {e}")
                         else:
-                            print(f"Ответ не является списком: {data}")
+                            print("Нет новых сообщений.")
                     else:
-                        print(f"GET {self.url} -> Status: {response.status_code}")
+                        print(f"GET {self.view_url} -> Status: {response.status_code}")
                 except Exception as e:
                     print(f"Ошибка при выполнении GET-запроса: {e}")
                 time.sleep(1)  # Пауза в 1 секунду
@@ -63,31 +67,41 @@ class Statgram:
         except Exception as e:
             print(f"Ошибка отправки сообщения: {e}")
 
+    def delete_message(self, chat_id: str):
+        """
+        Удаляет сообщение из очереди по chat_id.
+        :param chat_id: Идентификатор чата для удаления сообщения.
+        """
+        try:
+            response = requests.delete(self.delete_url.format(chat_id=chat_id))
+            if response.status_code == 200:
+                print(f"✅ Сообщение с chat_id={chat_id} успешно удалено.")
+            else:
+                print(f"❌ Ошибка удаления сообщения: Status {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Ошибка при запросе на удаление сообщения: {e}")
 
     def connect_postgresql(self, host: str, port: int, user: str, password: str, database: str):
         """
-        Создаёт URL для PostgreSQL и отправляет POST-запрос к `https://gateway.statgram.org/chatbot/connect_postgresql`.
+        Создаёт URL для PostgreSQL и отправляет POST-запрос к `/v1/auth/add-postgres`.
         """
         if not self.is_postgres_added:
             self.is_postgres_added = True
-            # Кодируем user и password, чтобы избежать проблем с спецсимволами
             encoded_user = urllib.parse.quote(user)
             encoded_password = urllib.parse.quote(password)
 
-            # Формируем PostgreSQL URL
             postgres_url = f"postgresql://{encoded_user}:{encoded_password}@{host}:{port}/{database}"
-
-            url = "https://gateway.statgram.org/chatbot/connect_postgresql"
-            payload = {"url": postgres_url}  # Передаём URL базы данных
+            url = "https://gateway.statgram.org/v1/auth/add-postgres"
+            payload = {"postgres_url": postgres_url, "user_id": 1}  # Пример user_id, заменить на актуальный
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.token}"  # Передаём API-токен в заголовке
+                "Authorization": f"Bearer {self.token}"
             }
-            
+
             try:
-                response = requests.post(url, json=payload, headers=headers, timeout=10)  # Отправляем POST-запрос
-                response.raise_for_status()  # Проверяем HTTP-ошибки (4xx, 5xx)
-                data = response.json()  # Конвертируем ответ в JSON
+                response = requests.post(url, json=payload, headers=headers, timeout=10)
+                response.raise_for_status()
+                data = response.json()
                 print(f"✅ Ответ от сервера: {data}")
                 return data
             except requests.exceptions.RequestException as e:
