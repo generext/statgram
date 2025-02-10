@@ -5,6 +5,9 @@ import time
 import asyncio
 from .schemas import MessageSchema
 import urllib.parse
+from core_requests import init_bot_connection
+from schemas import InitBotSchema, ResponseAddChatbotUsernameSchema
+from fastapi import HTTPException
 
 
 class Statgram:
@@ -29,18 +32,16 @@ class Statgram:
         """
         Выполняет проверочный запрос к endpoint /v1/auth/check-init.
         """
-        url = "https://gateway.statgram.org/v1/auth/check-init"
-        headers = {
-            "Authorization": f"Bearer {self.token}"
-        }
-        try:
-            response = requests.get(url, headers=headers, timeout=5)
-            response.raise_for_status()
-            print("✅ Пинг успешен, соединение установлено.")
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Ошибка пинга: {e}")
-            return None
+        response: ResponseAddChatbotUsernameSchema = init_bot_connection(InitBotSchema(api_key=self.token))
+        if response.data.exist:
+            if response.data.new:
+                print("✅ Новый коннект установлен.")
+            else:
+                print("✅ Пинг успешен, соединение установлено.")
+        else:
+            print(f"❌ Ошибка пинга")
+            raise HTTPException(status_code=404, detail="API key does not exist")
+
 
     def _start_periodic_get_requests(self):
         """

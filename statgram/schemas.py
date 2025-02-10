@@ -22,3 +22,20 @@ class MessageSchema(BaseModel):
     reply_markup: Optional[
         Union[InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply]
     ] = None
+
+
+class InitBotSchema(BaseModel):
+    """
+    Схема для добавления Telegram-бота к пользователю.
+    """
+    api_key: str
+    chatbot_username: str
+
+
+class AddChatbotUsernameResponseData(BaseModel):
+    exist: bool  # Indicates if the chatbot already exists in the system
+    new: bool    # Indicates if the chatbot was newly added
+
+class ResponseAddChatbotUsernameSchema(BaseModel):
+    message: str  # A message describing the result of the operation
+    data: AddChatbotUsernameResponseData  # The response data with details about the chatbot status
