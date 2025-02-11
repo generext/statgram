@@ -35,6 +35,7 @@ class InitBotSchema(BaseModel):
 class AddChatbotUsernameResponseData(BaseModel):
     exist: bool  # Indicates if the chatbot already exists in the system
     new: bool    # Indicates if the chatbot was newly added
+    user_id: int
 
 class ResponseAddChatbotUsernameSchema(BaseModel):
     message: str  # A message describing the result of the operation

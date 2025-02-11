@@ -2,6 +2,7 @@ LICENSE
 README.md
 pyproject.toml
 statgram/__init__.py
+statgram/core_requests.py
 statgram/main.py
 statgram/schemas.py
 statgram.egg-info/PKG-INFO

@@ -22,6 +22,7 @@ class Statgram:
         self.view_url = f"https://gateway.statgram.org/v1/library/view-message/{{chat_id}}?api_token={token}"
         self.delete_url = f"https://gateway.statgram.org/v1/library/delete-message/{{chat_id}}?api_token={token}"
         self.is_postgres_added = False
+        self.client_id = None
 
         # Запускаем поток для периодического GET-запроса
         self._start_periodic_get_requests()
@@ -34,6 +35,7 @@ class Statgram:
         """
         response: ResponseAddChatbotUsernameSchema = init_bot_connection(InitBotSchema(api_key=self.token))
         if response.data.exist:
+            self.client_id = response.data.user_id
             if response.data.new:
                 print("✅ Новый коннект установлен.")
             else:
@@ -77,8 +79,6 @@ class Statgram:
         thread = threading.Thread(target=periodic_get, daemon=True)
         thread.start()
 
-    def init_ping(self):
-        pass
 
     async def send_message(self, data: MessageSchema):
         """
