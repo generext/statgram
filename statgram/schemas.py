@@ -50,3 +50,21 @@ class ChatbotInfo(BaseModel):
     can_join_groups: Optional[bool] = None  # Может ли бот добавляться в группы
     can_read_all_group_messages: Optional[bool] = None  # Читает ли бот все сообщения в группах
     supports_inline_queries: Optional[bool] = None  # Поддерживает ли бот inline-режим
+
+class MessageSchema(BaseModel):
+    chat_id: Union[int, str]
+    text: str
+    parse_mode: Optional[str] = None
+    entities: Optional[List[MessageEntity]] = None
+    disable_web_page_preview: Optional[bool] = None
+    message_thread_id: Optional[int] = None
+    disable_notification: Optional[bool] = None
+    protect_content: Optional[bool] = None
+    reply_to_message_id: Optional[int] = None
+    allow_sending_without_reply: Optional[bool] = None
+    reply_markup: Optional[
+        Union[InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply]
+    ] = None
+
+    class Config:
+        arbitrary_types_allowed = True  # ✅ Разрешаем `aiogram.types.MessageEntity`

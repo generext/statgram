@@ -8,6 +8,7 @@ import urllib.parse
 from .core_requests import init_bot_connection
 from .schemas import InitBotSchema, ResponseAddChatbotUsernameSchema, ChatbotInfo
 from fastapi import HTTPException
+import aiohttp
 
 
 class Statgram:
@@ -85,33 +86,42 @@ class Statgram:
                 print(f"❌ Ошибка при запросе к API: {e}")
                 return None
 
-    def log(self, project_id: int, topic: str, data: str):
+    async def _async_log(self, message_data: MessageSchema) -> dict:
         """
-        Отправляет логи в API `/log`.
-        
-        :param project_id: ID проекта для логов.
-        :param topic: Тема логов (например, 'user_activity').
-        :param data: Данные логов (например, 'User logged in successfully').
+        Асинхронная функция для отправки лога.
         """
-        url = "https://gateway.statgram.org/log"
+        url = "https://logbox.statgram.org/log"
+        try:
+            # Пытаемся получить data, если её нет – берем text
+            data = message_data.data
+        except AttributeError:
+            data = message_data.text
+
         payload = {
-            "project_id": project_id,
-            "topic": topic,
+            "api_key": self.token,
+            "topic": "log",
             "data": data
-        }
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.token}"
         }
 
         try:
-            response = requests.post(url, json=payload, headers=headers, timeout=10)
-            response.raise_for_status()
-            print(f"✅ Лог отправлен: {response.json()}")
-            return response.json()
-        except requests.exceptions.RequestException as e:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, json=payload, timeout=10) as response:
+                    response.raise_for_status()  # Если статус не 200, будет выброшено исключение
+                    result = await response.json()
+                    print(f"✅ Лог отправлен: {result}")
+                    return result
+        except Exception as e:
             print(f"❌ Ошибка отправки лога: {e}")
-            return None
+            return {}
+
+    def log(self, message_data: MessageSchema) -> None:
+        """
+        Публичный метод логирования. Он сразу возвращает управление,
+        а отправка лога происходит в фоне.
+        """
+        # Запускаем асинхронную функцию как задачу (fire-and-forget)
+        asyncio.create_task(self._async_log(message_data))
+        # Возвращаем сразу, не дожидаясь завершения отправки лога
 
     async def send_message(self, data: MessageSchema):
         """
