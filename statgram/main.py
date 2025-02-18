@@ -73,14 +73,10 @@ class Statgram:
 
             postgres_url = f"postgresql://{encoded_user}:{encoded_password}@{host}:{port}/{database}"
             url = "https://gateway.statgram.org/v1/auth/add-postgres"
-            payload = {"postgres_url": postgres_url, "user_id": 1}  # Пример user_id, заменить на актуальный
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.token}"
-            }
+            payload = {"postgres_url": postgres_url, "api_key": self.token}  # Пример user_id, заменить на актуальный
 
             try:
-                response = requests.post(url, json=payload, headers=headers, timeout=10)
+                response = requests.post(url, json=payload, timeout=10)
                 response.raise_for_status()
                 data = response.json()
                 print(f"✅ Ответ от сервера: {data}")
@@ -166,7 +162,7 @@ class Statgram:
                         else:
                             print("Нет новых сообщений.")
                     else:
-                        print(f"GET {self.view_url} -> Status: {response.status_code}")
+                        print(f"GET {self.view_url} -> Status: {response.status_code} | {response.text}")
                 except Exception as e:
                     print(f"Ошибка при выполнении GET-запроса: {e}")
                 time.sleep(1)  # Пауза в 1 секунду
