@@ -6,7 +6,7 @@ import asyncio
 from .schemas import MessageSchema
 import urllib.parse
 from .core_requests import init_bot_connection
-from .schemas import InitBotSchema, ResponseAddChatbotUsernameSchema
+from .schemas import InitBotSchema, ResponseAddChatbotUsernameSchema, ChatbotInfo
 from fastapi import HTTPException
 
 
@@ -25,6 +25,7 @@ class Statgram:
         self.client_id = None
 
         # Запускаем поток для периодического GET-запроса
+        self.bot_username = self.get_bot_username()
         self._start_periodic_get_requests()
         self.init_ping()
 
@@ -33,7 +34,13 @@ class Statgram:
         """
         Выполняет проверочный запрос к endpoint /v1/auth/check-init.
         """
-        response: ResponseAddChatbotUsernameSchema = init_bot_connection(InitBotSchema(api_key=self.token))
+        response: ResponseAddChatbotUsernameSchema = ResponseAddChatbotUsernameSchema(**init_bot_connection(
+            InitBotSchema(
+                api_key=self.token, 
+                chatbot_username=self.bot_username
+            )
+        ))
+        print("✅ response", response)
         if response.data.exist:
             self.client_id = response.data.user_id
             if response.data.new:
@@ -44,6 +51,16 @@ class Statgram:
             print(f"❌ Ошибка пинга")
             raise HTTPException(status_code=404, detail="API key does not exist")
 
+    def get_bot_username(self) -> str:
+        """
+        Получает имя пользователя (username) бота.
+        """
+        try:
+            bot_info: ChatbotInfo = asyncio.run(self.bot.get_me())  # Запрос данных о боте
+            return bot_info.username
+        except Exception as e:
+            print(f"❌ Ошибка при получении username бота: {e}")
+            return "unknown_bot"  # Фолбэк, если произошла ошибка
 
     def connect_postgresql(self, host: str, port: int, user: str, password: str, database: str):
         """
@@ -157,4 +174,3 @@ class Statgram:
         # Запускаем поток
         thread = threading.Thread(target=periodic_get, daemon=True)
         thread.start()
-
