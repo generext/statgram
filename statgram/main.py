@@ -5,8 +5,8 @@ import time
 import asyncio
 from .schemas import MessageSchema
 import urllib.parse
-from core_requests import init_bot_connection
-from schemas import InitBotSchema, ResponseAddChatbotUsernameSchema
+from .core_requests import init_bot_connection
+from .schemas import InitBotSchema, ResponseAddChatbotUsernameSchema
 from fastapi import HTTPException
 
 
