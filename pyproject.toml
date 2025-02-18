@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "statgram"
-version = "0.1.8"
+version = "0.1.9"
 description = "AI-сервис для чат-ботов: управление, аналитика и прогнозы."
 
 authors = [
@@ -13,12 +13,10 @@ authors = [
 
 license = { text = "Apache-2.0" }
 
-dependencies = [
-  "aiogram==2.25.1",
-  "fastapi==0.95.1",
-  "uvicorn==0.22.0",
-  "pydantic==1.10.4"
-]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
 
 [project.urls]
 Source = "https://github.com/generext/statgram"

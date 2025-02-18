@@ -1,13 +1,13 @@
 Metadata-Version: 2.2
 Name: statgram
-Version: 0.1.8
+Version: 0.1.9
 Summary: AI-сервис для чат-ботов: управление, аналитика и прогнозы.
 Author-email: Kalinin Egor <me@generext.com>
 License: Apache-2.0
 Project-URL: Source, https://github.com/generext/statgram
 Project-URL: Issues, https://github.com/generext/statgram/issues
 License-File: LICENSE
-Requires-Dist: aiogram==2.25.1
-Requires-Dist: fastapi==0.95.1
-Requires-Dist: uvicorn==0.22.0
-Requires-Dist: pydantic==1.10.4
+Requires-Dist: aiogram<3.0,>=2.25.1
+Requires-Dist: fastapi>=0.95.1
+Requires-Dist: uvicorn>=0.22.0
+Requires-Dist: pydantic<3.0,>=1.10.4
