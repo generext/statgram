@@ -45,6 +45,85 @@ class Statgram:
             raise HTTPException(status_code=404, detail="API key does not exist")
 
 
+    def connect_postgresql(self, host: str, port: int, user: str, password: str, database: str):
+        """
+        Создаёт URL для PostgreSQL и отправляет POST-запрос к `/v1/auth/add-postgres`.
+        """
+        if not self.is_postgres_added:
+            self.is_postgres_added = True
+            encoded_user = urllib.parse.quote(user)
+            encoded_password = urllib.parse.quote(password)
+
+            postgres_url = f"postgresql://{encoded_user}:{encoded_password}@{host}:{port}/{database}"
+            url = "https://gateway.statgram.org/v1/auth/add-postgres"
+            payload = {"postgres_url": postgres_url, "user_id": 1}  # Пример user_id, заменить на актуальный
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.token}"
+            }
+
+            try:
+                response = requests.post(url, json=payload, headers=headers, timeout=10)
+                response.raise_for_status()
+                data = response.json()
+                print(f"✅ Ответ от сервера: {data}")
+                return data
+            except requests.exceptions.RequestException as e:
+                print(f"❌ Ошибка при запросе к API: {e}")
+                return None
+
+    def log(self, project_id: int, topic: str, data: str):
+        """
+        Отправляет логи в API `/log`.
+        
+        :param project_id: ID проекта для логов.
+        :param topic: Тема логов (например, 'user_activity').
+        :param data: Данные логов (например, 'User logged in successfully').
+        """
+        url = "https://gateway.statgram.org/log"
+        payload = {
+            "project_id": project_id,
+            "topic": topic,
+            "data": data
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.token}"
+        }
+
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=10)
+            response.raise_for_status()
+            print(f"✅ Лог отправлен: {response.json()}")
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Ошибка отправки лога: {e}")
+            return None
+
+    async def send_message(self, data: MessageSchema):
+        """
+        Отправляет сообщение с помощью Telegram-бота.
+        :param data: Объект MessageSchema с параметрами сообщения.
+        """
+        try:
+            await self.bot.send_message(**data.model_dump())
+        except Exception as e:
+            print(f"Ошибка отправки сообщения: {e}")
+
+    def delete_message(self, chat_id: str):
+        """
+        Удаляет сообщение из очереди по chat_id.
+        :param chat_id: Идентификатор чата для удаления сообщения.
+        """
+        try:
+            response = requests.delete(self.delete_url.format(chat_id=chat_id))
+            if response.status_code == 200:
+                print(f"✅ Сообщение с chat_id={chat_id} успешно удалено.")
+            else:
+                print(f"❌ Ошибка удаления сообщения: Status {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Ошибка при запросе на удаление сообщения: {e}")
+
     def _start_periodic_get_requests(self):
         """
         Запускает поток, который выполняет GET-запросы раз в секунду и обрабатывает сообщение.
@@ -79,54 +158,3 @@ class Statgram:
         thread = threading.Thread(target=periodic_get, daemon=True)
         thread.start()
 
-
-    async def send_message(self, data: MessageSchema):
-        """
-        Отправляет сообщение с помощью Telegram-бота.
-        :param data: Объект MessageSchema с параметрами сообщения.
-        """
-        try:
-            await self.bot.send_message(**data.model_dump())
-        except Exception as e:
-            print(f"Ошибка отправки сообщения: {e}")
-
-    def delete_message(self, chat_id: str):
-        """
-        Удаляет сообщение из очереди по chat_id.
-        :param chat_id: Идентификатор чата для удаления сообщения.
-        """
-        try:
-            response = requests.delete(self.delete_url.format(chat_id=chat_id))
-            if response.status_code == 200:
-                print(f"✅ Сообщение с chat_id={chat_id} успешно удалено.")
-            else:
-                print(f"❌ Ошибка удаления сообщения: Status {response.status_code}")
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Ошибка при запросе на удаление сообщения: {e}")
-
-    def connect_postgresql(self, host: str, port: int, user: str, password: str, database: str):
-        """
-        Создаёт URL для PostgreSQL и отправляет POST-запрос к `/v1/auth/add-postgres`.
-        """
-        if not self.is_postgres_added:
-            self.is_postgres_added = True
-            encoded_user = urllib.parse.quote(user)
-            encoded_password = urllib.parse.quote(password)
-
-            postgres_url = f"postgresql://{encoded_user}:{encoded_password}@{host}:{port}/{database}"
-            url = "https://gateway.statgram.org/v1/auth/add-postgres"
-            payload = {"postgres_url": postgres_url, "user_id": 1}  # Пример user_id, заменить на актуальный
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.token}"
-            }
-
-            try:
-                response = requests.post(url, json=payload, headers=headers, timeout=10)
-                response.raise_for_status()
-                data = response.json()
-                print(f"✅ Ответ от сервера: {data}")
-                return data
-            except requests.exceptions.RequestException as e:
-                print(f"❌ Ошибка при запросе к API: {e}")
-                return None
