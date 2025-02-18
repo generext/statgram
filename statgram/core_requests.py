@@ -4,8 +4,8 @@ import requests
 from schemas import InitBotSchema
 
 # Define the base URL
-GATEWAY_BASE_URL = "https://localhost:8101"
-LOGBOX_BASE_URL = "https://localhost:8102"
+GATEWAY_BASE_URL = "https://gateway.statgram.org/"
+LOGBOX_BASE_URL = "https://logbox.statgram.org/"
 
 CHECK_INIT = "/v1/auth/check-init"
 ADD_USERNAME = "/v1/auth/add-chatbot-username"

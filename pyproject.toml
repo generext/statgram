@@ -11,7 +11,7 @@ authors = [
   { name = "Kalinin Egor", email = "me@generext.com" }
 ]
 
-license = { file = "LICENSE" }
+license = { text = "Apache-2.0" }
 
 dependencies = [
   "aiogram==2.25.1",
