@@ -20,8 +20,7 @@ class Statgram:
         """
         self.token = token
         self.bot = bot
-        self.view_url = f"https://gateway.statgram.org/v1/library/view-message/{{chat_id}}?api_token={token}"
-        self.delete_url = f"https://gateway.statgram.org/v1/library/delete-message/{{chat_id}}?api_token={token}"
+        self.view_url = f"https://gateway.statgram.org/v1/library/view-message?api_token={token}"
         self.is_postgres_added = False
         self.client_id = None
 
@@ -153,10 +152,9 @@ class Statgram:
         """
         def periodic_get():
             while True:
-                chat_id = "example_chat_id"  # Здесь должен быть актуальный chat_id для запроса
                 try:
                     # Получаем сообщение
-                    response = requests.get(self.view_url.format(chat_id=chat_id))
+                    response = requests.get(self.view_url)
                     if response.status_code == 200:
                         data = response.json()
                         if data:  # Если сообщение не пустое
@@ -166,7 +164,6 @@ class Statgram:
                                 asyncio.run(self.send_message(message_data))
 
                                 # Удаляем сообщение после успешной отправки
-                                self.delete_message(chat_id)
                             except Exception as e:
                                 print(f"Ошибка обработки сообщения: {e}")
                         else:

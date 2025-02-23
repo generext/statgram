@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Dict
 from aiogram.types import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup,
@@ -67,4 +67,7 @@ class MessageSchema(BaseModel):
     ] = None
 
     class Config:
-        arbitrary_types_allowed = True  # ✅ Разрешаем `aiogram.types.MessageEntity`
+        arbitrary_types_allowed = True
+
+class MessagesResponse(BaseModel):
+    messages: Dict[str, MessageSchema]
