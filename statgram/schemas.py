@@ -40,7 +40,7 @@ class AddChatbotUsernameResponseData(BaseModel):
 
 class ResponseAddChatbotUsernameSchema(BaseModel):
     message: str  # A message describing the result of the operation
-    data: AddChatbotUsernameResponseData  # The response data with details about the chatbot status
+    data: Optional[AddChatbotUsernameResponseData]  # The response data with details about the chatbot status
 
 class ChatbotInfo(BaseModel):
     id: int  # Уникальный идентификатор бота

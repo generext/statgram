@@ -41,10 +41,11 @@ class Statgram:
             )
         ))
         print("✅ response", response)
-        if response.data.exist:
-            self.client_id = response.data.user_id
-            if response.data.new:
-                print("✅ Новый коннект установлен.")
+        if response.message:
+            if response.data:
+                if response.data.exist:
+                    self.client_id = response.data.user_id    
+                    print("✅ Новый коннект установлен.")
             else:
                 print("✅ Пинг успешен, соединение установлено.")
         else:
@@ -166,8 +167,6 @@ class Statgram:
                                 # Удаляем сообщение после успешной отправки
                             except Exception as e:
                                 print(f"Ошибка обработки сообщения: {e}")
-                        else:
-                            print("Нет новых сообщений.")
                     else:
                         print(f"GET {self.view_url} -> Status: {response.status_code} | {response.text}")
                 except Exception as e:
