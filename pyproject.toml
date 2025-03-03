@@ -12,6 +12,7 @@ authors = [
 ]
 
 license = { text = "Apache-2.0" }
+readme = "README.md"
 
 dynamic = ["dependencies"]
 
