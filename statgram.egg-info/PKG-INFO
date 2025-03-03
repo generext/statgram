@@ -1,13 +1,24 @@
 Metadata-Version: 2.2
 Name: statgram
 Version: 0.2.23
-Summary: AI-сервис для чат-ботов: управление, аналитика и прогнозы.
+Summary: AI service for Telegram chatbots on aiogram2: Management, analytics and predictions.
 Author-email: Kalinin Egor <me@generext.com>
 License: Apache-2.0
 Project-URL: Source, https://github.com/generext/statgram
 Project-URL: Issues, https://github.com/generext/statgram/issues
+Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: aiogram<3.0,>=2.25.0
 Requires-Dist: fastapi>=0.95.1
 Requires-Dist: uvicorn>=0.22.0
 Requires-Dist: pydantic<3.0,>=1.10.4
+
+# Statgram
+
+Statgram - AI Аналитика и админ панель с ИИ для любых текстовых вопросов по метрикам сразу после подключения для чат ботов и mini apps в Telegram
+
+Подробнее на statgram.org
+
+## Установка
+```sh
+pip install statgram
