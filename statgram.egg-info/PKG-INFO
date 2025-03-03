@@ -1,6 +1,6 @@
 Metadata-Version: 2.2
 Name: statgram
-Version: 0.2.26
+Version: 0.2.27
 Summary: AI service for Telegram chatbots on aiogram2: Management, analytics and predictions.
 Author-email: Kalinin Egor <me@generext.com>
 License: Apache-2.0
