@@ -27,7 +27,7 @@ class ChatbotInfo(BaseModel):
     supports_inline_queries: Optional[bool] = None  # Поддерживает ли бот inline-режим
 
 class MessageSchema(BaseModel):
-    chat_id: Union[int, str] = None
+    chat_id: Union[int, str, None] = None
     text: str = None
     parse_mode: Optional[str] = None
     message_thread_id: Optional[int] = None
