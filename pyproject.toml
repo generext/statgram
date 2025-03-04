@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "statgram"
-version = "0.2.27"
-description = "AI service for Telegram chatbots on aiogram2: Management, analytics and predictions."
+version = "0.2.28"
+description = "AI Аналитика и админ панель с ИИ для любых текстовых вопросов по метрикам сразу после подключения для чат ботов и mini apps в Telegram."
 
 authors = [
   { name = "Kalinin Egor", email = "me@generext.com" }
